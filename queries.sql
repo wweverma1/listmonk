@@ -25,8 +25,8 @@ SELECT * FROM lists
     LEFT JOIN subscriber_lists ON (lists.id = subscriber_lists.list_id)
     WHERE subscriber_id = (SELECT id FROM sub)
     -- Optional list IDs or UUIDs to filter.
-    AND (CASE WHEN $3::INT[] IS NOT NULL THEN id = ANY($3::INT[])
-          WHEN $4::UUID[] IS NOT NULL THEN uuid = ANY($4::UUID[])
+    AND (CASE WHEN CARDINALITY($3::INT[]) > 0 THEN id = ANY($3::INT[])
+          WHEN CARDINALITY($4::UUID[]) > 0 THEN uuid = ANY($4::UUID[])
           ELSE TRUE
     END)
     AND (CASE WHEN $5 != '' THEN subscriber_lists.status = $5::subscription_status END)
@@ -348,8 +348,14 @@ SELECT * FROM lists WHERE (CASE WHEN $1 = '' THEN 1=1 ELSE type=$1::list_type EN
 -- name: query-lists
 WITH ls AS (
 	SELECT COUNT(*) OVER () AS total, lists.* FROM lists
-    WHERE ($1 = 0 OR id = $1) AND ($2 = '' OR name ILIKE $2)
-    OFFSET $3 LIMIT (CASE WHEN $4 = 0 THEN NULL ELSE $4 END)
+    WHERE
+        CASE
+            WHEN $1 > 0 THEN id = $1
+            WHEN $2 != '' THEN uuid = $2::UUID
+            WHEN $3 != '' THEN name ILIKE $3
+            ELSE true
+        END
+    OFFSET $4 LIMIT (CASE WHEN $5 = 0 THEN NULL ELSE $5 END)
 ),
 counts AS (
     SELECT list_id, JSON_OBJECT_AGG(status, subscriber_count) AS subscriber_statuses FROM (

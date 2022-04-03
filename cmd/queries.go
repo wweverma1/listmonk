@@ -1,17 +1,14 @@
 package main
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
 )
 
 // Queries contains all prepared SQL queries.
-type Queries struct {
+type QueriesX struct {
 	GetDashboardCharts *sqlx.Stmt `query:"get-dashboard-charts"`
 	GetDashboardCounts *sqlx.Stmt `query:"get-dashboard-counts"`
 
@@ -119,51 +116,4 @@ func connectDB(c dbConf) (*sqlx.DB, error) {
 	db.SetMaxIdleConns(c.MaxIdle)
 	db.SetConnMaxLifetime(c.MaxLifetime)
 	return db, nil
-}
-
-// compileSubscriberQueryTpl takes an arbitrary WHERE expressions
-// to filter subscribers from the subscribers table and prepares a query
-// out of it using the raw `query-subscribers-template` query template.
-// While doing this, a readonly transaction is created and the query is
-// dry run on it to ensure that it is indeed readonly.
-func (q *Queries) compileSubscriberQueryTpl(exp string, db *sqlx.DB) (string, error) {
-	tx, err := db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
-	if err != nil {
-		return "", err
-	}
-	defer tx.Rollback()
-
-	// Perform the dry run.
-	if exp != "" {
-		exp = " AND " + exp
-	}
-	stmt := fmt.Sprintf(q.QuerySubscribersTpl, exp)
-	if _, err := tx.Exec(stmt, true, pq.Int64Array{}); err != nil {
-		return "", err
-	}
-
-	return stmt, nil
-}
-
-// compileSubscriberQueryTpl takes an arbitrary WHERE expressions and a subscriber
-// query template that depends on the filter (eg: delete by query, blocklist by query etc.)
-// combines and executes them.
-func (q *Queries) execSubscriberQueryTpl(exp, tpl string, listIDs []int64, db *sqlx.DB, args ...interface{}) error {
-	// Perform a dry run.
-	filterExp, err := q.compileSubscriberQueryTpl(exp, db)
-	if err != nil {
-		return err
-	}
-
-	if len(listIDs) == 0 {
-		listIDs = pq.Int64Array{}
-	}
-
-	// First argument is the boolean indicating if the query is a dry run.
-	a := append([]interface{}{false, pq.Int64Array(listIDs)}, args...)
-	if _, err := db.Exec(fmt.Sprintf(tpl, filterExp), a...); err != nil {
-		return err
-	}
-
-	return nil
 }

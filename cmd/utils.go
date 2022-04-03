@@ -101,6 +101,25 @@ func parseStringIDs(s []string) ([]int64, error) {
 	return vals, nil
 }
 
+// TODO: remove
+func parseStringIDs2(s []string) ([]int, error) {
+	vals := make([]int, 0, len(s))
+	for _, v := range s {
+		i, err := strconv.Atoi(v)
+		if err != nil {
+			return nil, err
+		}
+
+		if i < 1 {
+			return nil, fmt.Errorf("%d is not a valid ID", i)
+		}
+
+		vals = append(vals, i)
+	}
+
+	return vals, nil
+}
+
 // generateRandomString generates a cryptographically random, alphanumeric string of length n.
 func generateRandomString(n int) (string, error) {
 	const dictionary = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"

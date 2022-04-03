@@ -154,6 +154,15 @@ type subLists struct {
 	Lists        types.JSONText `db:"lists"`
 }
 
+// SubscriberExportProfile represents a subscriber's collated data in JSON for export.
+type SubscriberExportProfile struct {
+	Email         string          `db:"email" json:"-"`
+	Profile       json.RawMessage `db:"profile" json:"profile,omitempty"`
+	Subscriptions json.RawMessage `db:"subscriptions" json:"subscriptions,omitempty"`
+	CampaignViews json.RawMessage `db:"campaign_views" json:"campaign_views,omitempty"`
+	LinkClicks    json.RawMessage `db:"link_clicks" json:"link_clicks,omitempty"`
+}
+
 // SubscriberAttribs is the map of key:value attributes of a subscriber.
 type SubscriberAttribs map[string]interface{}
 

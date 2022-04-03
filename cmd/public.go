@@ -73,11 +73,6 @@ type subFormTpl struct {
 	Lists []models.List
 }
 
-type subForm struct {
-	subimporter.SubReq
-	SubListUUIDs []string `form:"l"`
-}
-
 var (
 	pixelPNG = drawTransparentImage(3, 14)
 )
@@ -118,7 +113,7 @@ func handleViewCampaignMessage(c echo.Context) error {
 	}
 
 	// Get the subscriber.
-	sub, err := getSubscriber(0, subUUID, "", app)
+	sub, err := app.core.GetSubscriber(0, subUUID, "")
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Render(http.StatusNotFound, tplMessage,
@@ -295,7 +290,10 @@ func handleSubscriptionFormPage(c echo.Context) error {
 func handleSubscriptionForm(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		req subForm
+		req struct {
+			subimporter.SubReq
+			SubListUUIDs []string `form:"l"`
+		}
 	)
 
 	// Get and validate fields.
@@ -334,7 +332,7 @@ func handleSubscriptionForm(c echo.Context) error {
 	// Insert the subscriber into the DB.
 	req.Status = models.SubscriberStatusEnabled
 	req.ListUUIDs = pq.StringArray(req.SubListUUIDs)
-	_, _, hasOptin, err := insertSubscriber(req.SubReq, app)
+	_, _, hasOptin, err := app.core.CreateSubscriber(req.SubReq.Subscriber, nil, req.ListUUIDs, false)
 	if err != nil {
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", fmt.Sprintf("%s", err.(*echo.HTTPError).Message)))

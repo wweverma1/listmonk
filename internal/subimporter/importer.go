@@ -571,6 +571,7 @@ func (im *Importer) Stop() {
 	}
 }
 
+// TODO: REMOVE
 // ValidateFields validates incoming subscriber field values and returns sanitized fields.
 func (im *Importer) ValidateFields(s SubReq) (SubReq, error) {
 	if len(s.Email) > 1000 {
@@ -586,7 +587,27 @@ func (im *Importer) ValidateFields(s SubReq) (SubReq, error) {
 	if err != nil {
 		return s, err
 	}
-	s.Email = em
+	s.Email = strings.ToLower(em)
+
+	return s, nil
+}
+
+// ValidateFields2 validates incoming subscriber field values and returns sanitized fields.
+func (im *Importer) ValidateFields2(s models.Subscriber) (models.Subscriber, error) {
+	if len(s.Email) > 1000 {
+		return s, errors.New(im.i18n.T("subscribers.invalidEmail"))
+	}
+
+	s.Name = strings.TrimSpace(s.Name)
+	if len(s.Name) == 0 || len(s.Name) > stdInputMaxLen {
+		return s, errors.New(im.i18n.T("subscribers.invalidName"))
+	}
+
+	em, err := im.SanitizeEmail(s.Email)
+	if err != nil {
+		return s, err
+	}
+	s.Email = strings.ToLower(em)
 
 	return s, nil
 }

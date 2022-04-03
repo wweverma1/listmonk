@@ -265,7 +265,7 @@ func readQueries(sqlFile string, db *sqlx.DB, fs stuffbin.FileSystem) goyesql.Qu
 }
 
 // prepareQueries queries prepares a query map and returns a *Queries
-func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *Queries {
+func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.Queries {
 	// The campaign view/click count queries have a COUNT(%s) placeholder that should either
 	// be substituted with * to pull non-unique rows when individual subscriber tracking is off
 	// as all subscriber_ids will be null, or with DISTINCT subscriber_id when tracking is on
@@ -281,7 +281,7 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *Queries
 	}
 
 	// Scan and prepare all queries.
-	var q Queries
+	var q models.Queries
 	if err := goyesqlx.ScanToStruct(&q, qMap, db.Unsafe()); err != nil {
 		lo.Fatalf("error preparing SQL queries: %v", err)
 	}
@@ -365,7 +365,7 @@ func initI18n(lang string, fs stuffbin.FileSystem) *i18n.I18n {
 }
 
 // initCampaignManager initializes the campaign manager.
-func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
+func initCampaignManager(q *models.Queries, cs *constants, app *App) *manager.Manager {
 	campNotifCB := func(subject string, data interface{}) error {
 		return app.sendNotification(cs.NotifyEmails, subject, notifTplCampaign, data)
 	}
@@ -403,7 +403,7 @@ func initCampaignManager(q *Queries, cs *constants, app *App) *manager.Manager {
 }
 
 // initImporter initializes the bulk subscriber importer.
-func initImporter(q *Queries, db *sqlx.DB, app *App) *subimporter.Importer {
+func initImporter(q *models.Queries, db *sqlx.DB, app *App) *subimporter.Importer {
 	return subimporter.New(
 		subimporter.Options{
 			DomainBlocklist:    app.constants.Privacy.DomainBlocklist,
@@ -671,6 +671,10 @@ func initHTTPServer(app *App) *echo.Echo {
 	}()
 
 	return srv
+}
+
+func initCore() {
+
 }
 
 func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) chan bool {
