@@ -104,7 +104,7 @@ func handleQuerySubscribers(c echo.Context) error {
 	)
 
 	// Limit the subscribers to specific lists?
-	listIDs, err := getQueryInts2("list_id", c.QueryParams())
+	listIDs, err := getQueryInts("list_id", c.QueryParams())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
@@ -139,13 +139,13 @@ func handleExportSubscribers(c echo.Context) error {
 	)
 
 	// Limit the subscribers to specific lists?
-	listIDs, err := getQueryInts2("list_id", c.QueryParams())
+	listIDs, err := getQueryInts("list_id", c.QueryParams())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
 
 	// Export only specific subscriber IDs?
-	subIDs, err := getQueryInts2("id", c.QueryParams())
+	subIDs, err := getQueryInts("id", c.QueryParams())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("globals.messages.invalidID"))
 	}
@@ -598,8 +598,7 @@ func sanitizeSQLExp(q string) string {
 	return q
 }
 
-// TODO: Remove
-func getQueryInts2(param string, qp url.Values) ([]int, error) {
+func getQueryInts(param string, qp url.Values) ([]int, error) {
 	var out []int
 	if vals, ok := qp[param]; ok {
 		for _, v := range vals {
@@ -618,25 +617,9 @@ func getQueryInts2(param string, qp url.Values) ([]int, error) {
 	return out, nil
 }
 
-func getQueryInts(param string, qp url.Values) (pq.Int64Array, error) {
-	out := pq.Int64Array{}
-	if vals, ok := qp[param]; ok {
-		for _, v := range vals {
-			if v == "" {
-				continue
-			}
-
-			listID, err := strconv.Atoi(v)
-			if err != nil {
-				return nil, err
-			}
-			out = append(out, int64(listID))
-		}
-	}
-
-	return out, nil
-}
-
+// sendOptinConfirmationHook returns an enclosed callback that sends optin confirmation e-mails.
+// This is plugged into the 'core' package to send optin confirmations when a new subscriber is
+// created via `core.CreateSubscriber()`.
 func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []int) (int, error) {
 	return func(sub models.Subscriber, listIDs []int) (int, error) {
 		var lists []models.List
