@@ -107,6 +107,31 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, order, orderBy stri
 	return out, total, nil
 }
 
+// GetSubscriberLists returns a subscriber's lists based on the given conditions.
+func (c *Core) GetSubscriberLists(subID int, uuid string, listIDs []int, listUUIDs []string, subStatus string, listType string) ([]models.List, error) {
+	if listIDs == nil {
+		listIDs = []int{}
+	}
+	if listUUIDs == nil {
+		listUUIDs = []string{}
+	}
+
+	var uu interface{}
+	if uuid != "" {
+		uu = uuid
+	}
+
+	// Fetch double opt-in lists from the given list IDs.
+	// Get the list of subscription lists where the subscriber hasn't confirmed.
+	var out []models.List
+	if err := c.q.GetSubscriberLists.Select(&out, subID, uu, pq.Array(listIDs), pq.Array(listUUIDs), subStatus, listType); err != nil {
+		c.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
+		return nil, err
+	}
+
+	return out, nil
+}
+
 // GetSubscriberProfileForExport returns the subscriber's profile data as a JSON exportable.
 // Get the subscriber's data. A single query that gets the profile, list subscriptions, campaign views,
 // and link clicks. Names of private lists are replaced with "Private list".

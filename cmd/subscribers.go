@@ -12,7 +12,6 @@ import (
 
 	"github.com/knadh/listmonk/models"
 	"github.com/labstack/echo/v4"
-	"github.com/lib/pq"
 )
 
 const (
@@ -622,17 +621,8 @@ func getQueryInts(param string, qp url.Values) ([]int, error) {
 // created via `core.CreateSubscriber()`.
 func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []int) (int, error) {
 	return func(sub models.Subscriber, listIDs []int) (int, error) {
-		var lists []models.List
-
-		if listIDs == nil {
-			listIDs = make([]int, 0, 1)
-		}
-
-		// Fetch double opt-in lists from the given list IDs.
-		// Get the list of subscription lists where the subscriber hasn't confirmed.
-		if err := app.queries.GetSubscriberLists.Select(&lists, sub.ID, nil,
-			pq.Array(listIDs), nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble); err != nil {
-			app.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
+		lists, err := app.core.GetSubscriberLists(sub.ID, "", listIDs, nil, models.SubscriptionStatusUnconfirmed, models.ListOptinDouble)
+		if err != nil {
 			return 0, err
 		}
 
