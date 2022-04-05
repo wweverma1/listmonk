@@ -42,6 +42,28 @@ func (c *Core) GetSubscriber(id int, uuid, email string) (models.Subscriber, err
 	return out[0], nil
 }
 
+// GetSubscribersByEmail fetches a subscriber by one of the given params.
+func (c *Core) GetSubscribersByEmail(emails []string) (models.Subscribers, error) {
+	var out models.Subscribers
+
+	if err := c.q.GetSubscribersByEmails.Select(&out, pq.Array(emails)); err != nil {
+		c.log.Printf("error fetching subscriber: %v", err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.subscriber}", "error", pqErrMsg(err)))
+	}
+	if len(out) == 0 {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("campaigns.noKnownSubsToTest"))
+	}
+
+	if err := out.LoadLists(c.q.GetSubscriberListsLazy); err != nil {
+		c.log.Printf("error loading subscriber lists: %v", err)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
+	}
+
+	return out, nil
+}
+
 // QuerySubscribers queries and returns paginated subscrribers based on the given params including the total count.
 func (c *Core) QuerySubscribers(query string, listIDs []int, order, orderBy string, offset, limit int) (models.Subscribers, int, error) {
 	// There's an arbitrary query condition.
@@ -219,7 +241,9 @@ func (c *Core) ExportSubscribers(query string, subIDs, listIDs []int, batchSize 
 func (c *Core) CreateSubscriber(sub models.Subscriber, listIDs []int, listUUIDs []string, preconfirm bool) (models.Subscriber, bool, bool, error) {
 	uu, err := uuid.NewV4()
 	if err != nil {
-		return models.Subscriber{}, false, false, err
+		c.log.Printf("error generating UUID: %v", err)
+		return models.Subscriber{}, false, false, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUUID", "error", err.Error()))
 	}
 	sub.UUID = uu.String()
 

@@ -120,6 +120,16 @@ var regTplFuncs = []regTplFunc{
 // when a campaign's status changes.
 type AdminNotifCallback func(subject string, data interface{}) error
 
+// PageResults is a generic HTTP response container for paginated results of list of items.
+type PageResults struct {
+	Results interface{} `json:"results"`
+
+	Query   string `json:"query"`
+	Total   int    `json:"total"`
+	PerPage int    `json:"per_page"`
+	Page    int    `json:"page"`
+}
+
 // Base holds common fields shared across models.
 type Base struct {
 	ID        int       `db:"id" json:"id"`
@@ -252,6 +262,17 @@ type CampaignMeta struct {
 	StartedAt null.Time `db:"started_at" json:"started_at"`
 	ToSend    int       `db:"to_send" json:"to_send"`
 	Sent      int       `db:"sent" json:"sent"`
+}
+
+type CampaignStats struct {
+	ID        int       `db:"id" json:"id"`
+	Status    string    `db:"status" json:"status"`
+	ToSend    int       `db:"to_send" json:"to_send"`
+	Sent      int       `db:"sent" json:"sent"`
+	Started   null.Time `db:"started_at" json:"started_at"`
+	UpdatedAt null.Time `db:"updated_at" json:"updated_at"`
+	Rate      int       `json:"rate"`
+	NetRate   int       `json:"net_rate"`
 }
 
 // Campaigns represents a slice of Campaigns.
