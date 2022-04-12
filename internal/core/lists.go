@@ -24,10 +24,10 @@ func (c *Core) GetLists(typ string) ([]models.List, error) {
 }
 
 // QueryLists gets multiple lists based on multiple query params.
-func (c *Core) QueryLists(query, orderBy, order string, offset, limit int) ([]models.List, error) {
+func (c *Core) QueryLists(searchStr, orderBy, order string, offset, limit int) ([]models.List, error) {
 	var out []models.List
 
-	queryStr, stmt := makeSearchQuery(query, orderBy, order, c.q.QueryLists)
+	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists)
 
 	if err := c.db.Select(&out, stmt, 0, "", queryStr, offset, limit); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
@@ -55,6 +55,18 @@ func (c *Core) GetList(id int, uuid string) (models.List, error) {
 	}
 
 	return models.List{}, nil
+}
+
+// GetListsByOptin returns lists by optin type.
+func (c *Core) GetListsByOptin(ids []int, optinType string) ([]models.List, error) {
+	var out []models.List
+	if err := c.q.GetListsByOptin.Select(&out, optinType, pq.Array(ids), nil); err != nil {
+		c.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
+		return nil, echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.list}", "error", pqErrMsg(err)))
+	}
+
+	return out, nil
 }
 
 // CreateList creates a new list.

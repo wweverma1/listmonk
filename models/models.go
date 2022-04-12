@@ -275,6 +275,17 @@ type CampaignStats struct {
 	NetRate   int       `json:"net_rate"`
 }
 
+type CampaignAnalyticsCount struct {
+	CampaignID int       `db:"campaign_id" json:"campaign_id"`
+	Count      int       `db:"count" json:"count"`
+	Timestamp  time.Time `db:"timestamp" json:"timestamp"`
+}
+
+type CampaignAnalyticsLink struct {
+	URL   string `db:"url" json:"url"`
+	Count int    `db:"count" json:"count"`
+}
+
 // Campaigns represents a slice of Campaigns.
 type Campaigns []Campaign
 

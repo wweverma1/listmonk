@@ -80,9 +80,9 @@ func pqErrMsg(err error) string {
 // makeSearchQuery cleans an optional search string and prepares the
 // query SQL statement (string interpolated) and returns the
 // search query string along with the SQL expression.
-func makeSearchQuery(q, orderBy, order, query string) (string, string) {
-	if q != "" {
-		q = `%` + string(regexFullTextQuery.ReplaceAll([]byte(q), []byte("&"))) + `%`
+func makeSearchQuery(searchStr, orderBy, order, query string) (string, string) {
+	if searchStr != "" {
+		searchStr = `%` + string(regexFullTextQuery.ReplaceAll([]byte(searchStr), []byte("&"))) + `%`
 	}
 
 	// Sort params.
@@ -93,7 +93,7 @@ func makeSearchQuery(q, orderBy, order, query string) (string, string) {
 		order = SortDesc
 	}
 
-	return q, fmt.Sprintf(query, orderBy, order)
+	return searchStr, fmt.Sprintf(query, orderBy, order)
 }
 
 // strSliceContains checks if a string is present in the string slice.
@@ -138,4 +138,9 @@ func sanitizeSQLExp(q string) string {
 		q = q[:len(q)-1]
 	}
 	return q
+}
+
+// strHasLen checks if the given string has a length within min-max.
+func strHasLen(str string, min, max int) bool {
+	return len(str) >= min && len(str) <= max
 }
