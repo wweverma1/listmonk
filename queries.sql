@@ -773,7 +773,7 @@ WITH u AS (
 UPDATE templates SET is_default=false WHERE id != $1;
 
 -- name: delete-template
--- Delete a template as long as there's more than one. One deletion, set all campaigns
+-- Delete a template as long as there's more than one. On deletion, set all campaigns
 -- with that template to the default template instead.
 WITH tpl AS (
     DELETE FROM templates WHERE id = $1 AND (SELECT COUNT(id) FROM templates) > 1 AND is_default = false RETURNING id
