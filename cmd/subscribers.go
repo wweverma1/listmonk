@@ -417,7 +417,7 @@ func handleDeleteSubscribers(c echo.Context) error {
 		subIDs = i
 	}
 
-	if err := app.core.DeleteSubscribers(subIDs); err != nil {
+	if err := app.core.DeleteSubscribers(subIDs, nil); err != nil {
 		return err
 	}
 

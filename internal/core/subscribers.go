@@ -368,8 +368,15 @@ func (c *Core) BlocklistSubscribersByQuery(query string, listIDs []int) error {
 }
 
 // DeleteSubscribers deletes the given list of subscribers.
-func (c *Core) DeleteSubscribers(subIDs []int) error {
-	if _, err := c.q.DeleteSubscribers.Exec(pq.Array(subIDs), nil); err != nil {
+func (c *Core) DeleteSubscribers(subIDs []int, subUUIDs []string) error {
+	if subIDs == nil {
+		subIDs = []int{}
+	}
+	if subUUIDs == nil {
+		subUUIDs = []string{}
+	}
+
+	if _, err := c.q.DeleteSubscribers.Exec(pq.Array(subIDs), pq.Array(subUUIDs)); err != nil {
 		c.log.Printf("error deleting subscribers: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
@@ -388,6 +395,28 @@ func (c *Core) DeleteSubscribersByQuery(query string, listIDs []int) error {
 	}
 
 	return err
+}
+
+// UnsubscribeByCampaign unsubscibers a given subscriber from lists in a given campaign.
+func (c *Core) UnsubscribeByCampaign(subUUID, campUUID string, blocklist bool) error {
+	if _, err := c.q.Unsubscribe.Exec(campUUID, subUUID, blocklist); err != nil {
+		c.log.Printf("error unsubscribing: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	return nil
+}
+
+// ConfirmOptionSubscription confirms a subscriber's optin subscription.
+func (c *Core) ConfirmOptionSubscription(subUUID string, listUUIDs []string) error {
+	if _, err := c.q.ConfirmSubscriptionOptin.Exec(subUUID, pq.Array(listUUIDs)); err != nil {
+		c.log.Printf("error confirming subscription: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError,
+			c.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+	}
+
+	return nil
 }
 
 // DeleteSubscriberBounces deletes the given list of subscribers.
