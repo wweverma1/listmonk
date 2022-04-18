@@ -266,17 +266,20 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 		)
 
 		var exists bool
-		if err := app.queries.SubscriberExists.Get(&exists, 0, subUUID); err != nil {
+		if _, err := app.core.GetSubscriber(0, subUUID, ""); err != nil {
+			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
+				return c.Render(http.StatusNotFound, tplMessage,
+					makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", er.Message.(string)))
+			}
+
 			app.log.Printf("error checking subscriber existence: %v", err)
 			return c.Render(http.StatusInternalServerError, tplMessage,
-				makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-					app.i18n.T("public.errorProcessingRequest")))
+				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
 		}
 
 		if !exists {
 			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "",
-					app.i18n.T("public.subNotFound")))
+				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.subNotFound")))
 		}
 		return next(c)
 	}
