@@ -787,10 +787,13 @@ UPDATE campaigns SET template_id = (SELECT id FROM def) WHERE (SELECT id FROM tp
 
 -- media
 -- name: insert-media
-INSERT INTO media (uuid, filename, thumb, provider, created_at) VALUES($1, $2, $3, $4, NOW());
+INSERT INTO media (uuid, filename, thumb, provider, created_at) VALUES($1, $2, $3, $4, NOW()) RETURNING id;
+
+-- name: get-all-media
+SELECT * FROM media WHERE provider=$1 ORDER BY created_at DESC;
 
 -- name: get-media
-SELECT * FROM media WHERE provider=$1 ORDER BY created_at DESC;
+SELECT * FROM media WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END;
 
 -- name: delete-media
 DELETE FROM media WHERE id=$1 RETURNING filename;
