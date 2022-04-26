@@ -86,6 +86,7 @@ func initHTTPHandlers(e *echo.Echo, app *App) {
 	g.DELETE("/api/subscribers", handleDeleteSubscribers)
 
 	g.GET("/api/bounces", handleGetBounces)
+	g.GET("/api/bounces/:id", handleGetBounces)
 	g.DELETE("/api/bounces", handleDeleteBounces)
 	g.DELETE("/api/bounces/:id", handleDeleteBounces)
 
