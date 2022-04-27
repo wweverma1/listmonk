@@ -64,7 +64,7 @@ WITH sub AS (
 ),
 listIDs AS (
     SELECT id FROM lists WHERE
-        (CASE WHEN ARRAY_LENGTH($6::INT[], 1) > 0 THEN id=ANY($6)
+        (CASE WHEN CARDINALITY($6::INT[]) > 0 THEN id=ANY($6)
               ELSE uuid=ANY($7::UUID[]) END)
 ),
 subs AS (
@@ -943,7 +943,7 @@ WHERE ($1 = 0 OR bounces.id = $1)
 ORDER BY %s %s OFFSET $5 LIMIT $6;
 
 -- name: delete-bounces
-DELETE FROM bounces WHERE ARRAY_LENGTH($1::INT[], 1) IS NULL OR id = ANY($1);
+DELETE FROM bounces WHERE CARDINALITY($1::INT[]) = 0 OR id = ANY($1);
 
 -- name: delete-bounces-by-subscriber
 WITH sub AS (
