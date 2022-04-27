@@ -125,7 +125,7 @@ func handleCreateList(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, out)
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleUpdateList handles list modification.
@@ -155,7 +155,7 @@ func handleUpdateList(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, out)
+	return c.JSON(http.StatusOK, okResp{out})
 }
 
 // handleDeleteLists handles list deletion, either a single one (ID in the URI), or a list.

@@ -287,15 +287,13 @@ func handleSubscriptionForm(c echo.Context) error {
 	// If there's a nonce value, a bot could've filled the form.
 	if c.FormValue("nonce") != "" {
 		return c.Render(http.StatusOK, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.T("public.invalidFeature")))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.invalidFeature")))
 
 	}
 
 	if len(req.SubListUUIDs) == 0 {
 		return c.Render(http.StatusBadRequest, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "",
-				app.i18n.T("public.noListsSelected")))
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.noListsSelected")))
 	}
 
 	// If there's no name, use the name bit from the e-mail.
