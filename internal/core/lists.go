@@ -14,7 +14,7 @@ func (c *Core) GetLists(typ string) ([]models.List, error) {
 	var out []models.List
 
 	// TODO: remove orderBy
-	if err := c.q.GetLists.Select(&out, "", "id"); err != nil {
+	if err := c.q.GetLists.Select(&out, typ, "id"); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))
