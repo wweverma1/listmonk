@@ -99,7 +99,7 @@ func handleDeleteBounces(c echo.Context) error {
 		IDs = append(IDs, id)
 	} else if !all {
 		// Multiple IDs.
-		i, err := parseStringIDs2(c.Request().URL.Query()["id"])
+		i, err := parseStringIDs(c.Request().URL.Query()["id"])
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("globals.messages.invalidID", "error", err.Error()))

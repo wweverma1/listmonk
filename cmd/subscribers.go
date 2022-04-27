@@ -405,7 +405,7 @@ func handleDeleteSubscribers(c echo.Context) error {
 		subIDs = append(subIDs, id)
 	} else {
 		// Multiple IDs.
-		i, err := parseStringIDs2(c.Request().URL.Query()["id"])
+		i, err := parseStringIDs(c.Request().URL.Query()["id"])
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
 				app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))

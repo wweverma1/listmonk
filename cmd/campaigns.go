@@ -445,7 +445,7 @@ func handleGetCampaignViewAnalytics(c echo.Context) error {
 		to   = c.QueryParams().Get("to")
 	)
 
-	ids, err := parseStringIDs2(c.Request().URL.Query()["id"])
+	ids, err := parseStringIDs(c.Request().URL.Query()["id"])
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("globals.messages.errorInvalidIDs", "error", err.Error()))

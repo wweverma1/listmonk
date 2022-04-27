@@ -83,26 +83,7 @@ func makeMsgTpl(pageTitle, heading, msg string) msgTpl {
 // parseStringIDs takes a slice of numeric string IDs and
 // parses each number into an int64 and returns a slice of the
 // resultant values.
-func parseStringIDs(s []string) ([]int64, error) {
-	vals := make([]int64, 0, len(s))
-	for _, v := range s {
-		i, err := strconv.ParseInt(v, 10, 64)
-		if err != nil {
-			return nil, err
-		}
-
-		if i < 1 {
-			return nil, fmt.Errorf("%d is not a valid ID", i)
-		}
-
-		vals = append(vals, i)
-	}
-
-	return vals, nil
-}
-
-// TODO: remove
-func parseStringIDs2(s []string) ([]int, error) {
+func parseStringIDs(s []string) ([]int, error) {
 	vals := make([]int, 0, len(s))
 	for _, v := range s {
 		i, err := strconv.Atoi(v)
