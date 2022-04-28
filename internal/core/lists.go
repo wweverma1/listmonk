@@ -40,11 +40,14 @@ func (c *Core) QueryLists(searchStr, orderBy, order string, offset, limit int) (
 
 // GetList gets a list by its ID or UUID.
 func (c *Core) GetList(id int, uuid string) (models.List, error) {
+	var uu interface{}
+	if uuid != "" {
+		uu = uuid
+	}
+
 	var out []models.List
-
 	queryStr, stmt := makeSearchQuery("", "", "", c.q.QueryLists)
-
-	if err := c.db.Select(&out, stmt, id, uuid, queryStr, 0, 1); err != nil {
+	if err := c.db.Select(&out, stmt, id, uu, queryStr, 0, 1); err != nil {
 		c.log.Printf("error fetching lists: %v", err)
 		return models.List{}, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.lists}", "error", pqErrMsg(err)))

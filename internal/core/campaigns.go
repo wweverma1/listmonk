@@ -273,7 +273,7 @@ func (c *Core) GetRunningCampaignStats() ([]models.CampaignStats, error) {
 	return out, nil
 }
 
-func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, from, to string) ([]models.CampaignAnalyticsCount, error) {
+func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate string) ([]models.CampaignAnalyticsCount, error) {
 	// Pick campaign view counts or click counts.
 	var stmt *sqlx.Stmt
 	switch typ {
@@ -287,12 +287,12 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, from, to string) (
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("globals.messages.invalidData"))
 	}
 
-	if !strHasLen(from, 10, 30) || !strHasLen(to, 10, 30) {
+	if !strHasLen(fromDate, 10, 30) || !strHasLen(toDate, 10, 30) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("analytics.invalidDates"))
 	}
 
 	out := make([]models.CampaignAnalyticsCount, 0)
-	if err := stmt.Select(&out, pq.Array(campIDs), from, to); err != nil {
+	if err := stmt.Select(&out, pq.Array(campIDs), fromDate, toDate); err != nil {
 		c.log.Printf("error fetching campaign %s: %v", typ, err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
@@ -301,9 +301,10 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, from, to string) (
 	return out, nil
 }
 
-func (c *Core) GetCampaignAnalyticsLinks(campIDs []int, typ, from, to string) ([]models.CampaignAnalyticsLink, error) {
+// GetCampaignAnalyticsLinks returns link click analytics for the given campaign IDs.
+func (c *Core) GetCampaignAnalyticsLinks(campIDs []int, typ, fromDate, toDate string) ([]models.CampaignAnalyticsLink, error) {
 	out := make([]models.CampaignAnalyticsLink, 0)
-	if err := c.q.GetCampaignLinkCounts.Select(&out, pq.Array(campIDs), from, to); err != nil {
+	if err := c.q.GetCampaignLinkCounts.Select(&out, pq.Array(campIDs), fromDate, toDate); err != nil {
 		c.log.Printf("error fetching campaign %s: %v", typ, err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.analytics}", "error", pqErrMsg(err)))
@@ -324,7 +325,7 @@ func (c *Core) RegisterCampaignView(campUUID, subUUID string) error {
 
 // RegisterCampaignLinkClick registers a subscriber's link click on a campaign.
 func (c *Core) RegisterCampaignLinkClick(linkUUID, campUUID, subUUID string) error {
-	if _, err := c.q.RegisterCampaignView.Exec(campUUID, subUUID); err != nil {
+	if _, err := c.q.RegisterLinkClick.Exec(linkUUID, campUUID, subUUID); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Column == "link_id" {
 			return echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("public.invalidLink"))
 		}
