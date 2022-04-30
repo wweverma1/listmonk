@@ -303,11 +303,21 @@ func handleSubscriptionForm(c echo.Context) error {
 	}
 
 	// Validate fields.
-	if r, err := app.importer.ValidateFields(req.SubReq); err != nil {
-		return c.Render(http.StatusInternalServerError, tplMessage,
-			makeMsgTpl(app.i18n.T("public.errorTitle"), "", err.Error()))
-	} else {
-		req.SubReq = r
+	if len(req.Email) > 1000 {
+		return c.Render(http.StatusBadRequest, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("subscribers.invalidEmail")))
+	}
+
+	em, err := app.importer.SanitizeEmail(req.Email)
+	if err != nil {
+
+	}
+	req.Email = strings.ToLower(em)
+
+	req.Name = strings.TrimSpace(req.Name)
+	if len(req.Name) == 0 || len(req.Name) > stdInputMaxLen {
+		return c.Render(http.StatusBadRequest, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("subscribers.invalidName")))
 	}
 
 	// Insert the subscriber into the DB.

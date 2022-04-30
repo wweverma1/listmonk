@@ -210,13 +210,24 @@ func handleCreateSubscriber(c echo.Context) error {
 		return err
 	}
 
-	sub, err := app.importer.ValidateFields2(req.Subscriber)
+	// Validate fields.
+	if len(req.Email) > 1000 {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidEmail"))
+	}
+
+	em, err := app.importer.SanitizeEmail(req.Email)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+
+	}
+	req.Email = strings.ToLower(em)
+
+	req.Name = strings.TrimSpace(req.Name)
+	if len(req.Name) == 0 || len(req.Name) > stdInputMaxLen {
+		return echo.NewHTTPError(http.StatusBadRequest, app.i18n.T("subscribers.invalidName"))
 	}
 
 	// Insert the subscriber into the DB.
-	sub, isNew, _, err := app.core.CreateSubscriber(sub, req.Lists, req.ListUUIDs, req.PreconfirmSubs)
+	sub, isNew, _, err := app.core.CreateSubscriber(req.Subscriber, req.Lists, req.ListUUIDs, req.PreconfirmSubs)
 	if err != nil {
 		return err
 	}
