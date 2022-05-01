@@ -29,15 +29,6 @@ type subQueryReq struct {
 	Status        string `json:"status"`
 }
 
-type subsWrap struct {
-	Results models.Subscribers `json:"results"`
-
-	Query   string `json:"query"`
-	Total   int    `json:"total"`
-	PerPage int    `json:"per_page"`
-	Page    int    `json:"page"`
-}
-
 // subProfileData represents a subscriber's collated data in JSON
 // for export.
 type subProfileData struct {
@@ -50,7 +41,7 @@ type subProfileData struct {
 
 // subOptin contains the data that's passed to the double opt-in e-mail template.
 type subOptin struct {
-	*models.Subscriber
+	models.Subscriber
 
 	OptinURL string
 	UnsubURL string
@@ -99,7 +90,7 @@ func handleQuerySubscribers(c echo.Context) error {
 		query   = sanitizeSQLExp(c.FormValue("query"))
 		orderBy = c.FormValue("order_by")
 		order   = c.FormValue("order")
-		out     = subsWrap{Results: make(models.Subscribers, 0, 1)}
+		out     models.PageResults
 	)
 
 	// Limit the subscribers to specific lists?
@@ -114,12 +105,6 @@ func handleQuerySubscribers(c echo.Context) error {
 	}
 
 	out.Query = query
-
-	// No results.
-	if len(res) == 0 {
-		return c.JSON(http.StatusOK, okResp{out})
-	}
-
 	out.Results = res
 	out.Total = total
 	out.Page = pg.Page
@@ -639,9 +624,10 @@ func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []i
 		}
 
 		var (
-			out      = subOptin{Subscriber: &sub, Lists: lists}
+			out      = subOptin{Subscriber: sub, Lists: lists}
 			qListIDs = url.Values{}
 		)
+
 		// Construct the opt-in URL with list IDs.
 		for _, l := range out.Lists {
 			qListIDs.Add("l", l.UUID)
@@ -654,6 +640,7 @@ func sendOptinConfirmationHook(app *App) func(sub models.Subscriber, listIDs []i
 			app.log.Printf("error sending opt-in e-mail: %s", err)
 			return 0, err
 		}
+
 		return len(lists), nil
 	}
 }

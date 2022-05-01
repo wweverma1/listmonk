@@ -22,7 +22,6 @@ type Queries struct {
 	GetSubscribersByEmails          *sqlx.Stmt `query:"get-subscribers-by-emails"`
 	GetSubscriberLists              *sqlx.Stmt `query:"get-subscriber-lists"`
 	GetSubscriberListsLazy          *sqlx.Stmt `query:"get-subscriber-lists-lazy"`
-	SubscriberExists                *sqlx.Stmt `query:"subscriber-exists"`
 	UpdateSubscriber                *sqlx.Stmt `query:"update-subscriber"`
 	BlocklistSubscribers            *sqlx.Stmt `query:"blocklist-subscribers"`
 	AddSubscribersToLists           *sqlx.Stmt `query:"add-subscribers-to-lists"`

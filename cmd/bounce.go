@@ -11,14 +11,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type bouncesWrap struct {
-	Results []models.Bounce `json:"results"`
-
-	Total   int `json:"total"`
-	PerPage int `json:"per_page"`
-	Page    int `json:"page"`
-}
-
 // handleGetBounces handles retrieval of bounce records.
 func handleGetBounces(c echo.Context) error {
 	var (

@@ -6,27 +6,14 @@ import (
 	"strings"
 
 	"github.com/knadh/listmonk/models"
-
 	"github.com/labstack/echo/v4"
-)
-
-type listsWrap struct {
-	Results []models.List `json:"results"`
-
-	Total   int `json:"total"`
-	PerPage int `json:"per_page"`
-	Page    int `json:"page"`
-}
-
-var (
-	listQuerySortFields = []string{"name", "type", "subscriber_count", "created_at", "updated_at"}
 )
 
 // handleGetLists retrieves lists with additional metadata like subscriber counts. This may be slow.
 func handleGetLists(c echo.Context) error {
 	var (
 		app = c.Get("app").(*App)
-		out listsWrap
+		out models.PageResults
 
 		pg         = getPagination(c.QueryParams(), 20)
 		query      = strings.TrimSpace(c.FormValue("query"))

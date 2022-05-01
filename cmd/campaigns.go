@@ -43,23 +43,8 @@ type campaignContentReq struct {
 	To   string `json:"to"`
 }
 
-type campCountStats struct {
-	CampaignID int       `db:"campaign_id" json:"campaign_id"`
-	Count      int       `db:"count" json:"count"`
-	Timestamp  time.Time `db:"timestamp" json:"timestamp"`
-}
-
-type campTopLinks struct {
-	URL   string `db:"url" json:"url"`
-	Count int    `db:"count" json:"count"`
-}
-
 var (
-	regexFromAddress   = regexp.MustCompile(`(.+?)\s<(.+?)@(.+?)>`)
-	regexFullTextQuery = regexp.MustCompile(`\s+`)
-
-	campaignQuerySortFields = []string{"name", "status", "created_at", "updated_at"}
-	bounceQuerySortFields   = []string{"email", "campaign_name", "source", "created_at"}
+	regexFromAddress = regexp.MustCompile(`(.+?)\s<(.+?)@(.+?)>`)
 )
 
 // handleGetCampaigns handles retrieval of campaigns.

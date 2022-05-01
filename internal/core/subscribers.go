@@ -95,8 +95,7 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, order, orderBy stri
 	tx, err := c.db.BeginTxx(context.Background(), &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		c.log.Printf("error preparing subscriber query: %v", err)
-		return nil, 0, echo.NewHTTPError(http.StatusBadRequest,
-			c.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
+		return nil, 0, echo.NewHTTPError(http.StatusBadRequest, c.i18n.Ts("subscribers.errorPreparingQuery", "error", pqErrMsg(err)))
 	}
 	defer tx.Rollback()
 
@@ -109,7 +108,7 @@ func (c *Core) QuerySubscribers(query string, listIDs []int, order, orderBy stri
 
 	// No results.
 	if total == 0 {
-		return nil, 0, nil
+		return models.Subscribers{}, 0, nil
 	}
 
 	// Run the query again and fetch the actual data. stmt is the raw SQL query.
