@@ -1,15 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"crypto/rand"
 	"fmt"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/lib/pq"
 )
 
 var (
@@ -35,35 +32,6 @@ func makeFilename(fName string) string {
 	// replace whitespace with "-"
 	name = regexpSpaces.ReplaceAllString(name, "-")
 	return filepath.Base(name)
-}
-
-// Given an error, pqErrMsg will try to return pq error details
-// if it's a pq error.
-func pqErrMsg(err error) string {
-	if err, ok := err.(*pq.Error); ok {
-		if err.Detail != "" {
-			return fmt.Sprintf("%s. %s", err, err.Detail)
-		}
-	}
-	return err.Error()
-}
-
-// normalizeTags takes a list of string tags and normalizes them by
-// lower casing and removing all special characters except for dashes.
-func normalizeTags(tags []string) []string {
-	var (
-		out  []string
-		dash = []byte("-")
-	)
-
-	for _, t := range tags {
-		rep := regexpSpaces.ReplaceAll(bytes.TrimSpace([]byte(t)), dash)
-
-		if len(rep) > 0 {
-			out = append(out, string(rep))
-		}
-	}
-	return out
 }
 
 // makeMsgTpl takes a page title, heading, and message and returns

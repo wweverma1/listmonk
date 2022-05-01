@@ -251,7 +251,6 @@ func handleSubscriptionFormPage(c echo.Context) error {
 	// Get all public lists.
 	lists, err := app.core.GetLists(models.ListTypePublic)
 	if err != nil {
-		app.log.Printf("error fetching public lists for form: %s", pqErrMsg(err))
 		return c.Render(http.StatusInternalServerError, tplMessage,
 			makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.Ts("public.errorFetchingLists")))
 	}

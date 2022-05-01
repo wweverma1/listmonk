@@ -36,6 +36,7 @@ import (
 	"github.com/knadh/listmonk/models"
 	"github.com/knadh/stuffbin"
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 	flag "github.com/spf13/pflag"
 )
 
@@ -293,7 +294,14 @@ func prepareQueries(qMap goyesql.Queries, db *sqlx.DB, ko *koanf.Koanf) *models.
 func initSettings(query string, db *sqlx.DB, ko *koanf.Koanf) {
 	var s types.JSONText
 	if err := db.Get(&s, query); err != nil {
-		lo.Fatalf("error reading settings from DB: %s", pqErrMsg(err))
+		msg := err.Error()
+		if err, ok := err.(*pq.Error); ok {
+			if err.Detail != "" {
+				msg = fmt.Sprintf("%s. %s", err, err.Detail)
+			}
+		}
+
+		lo.Fatalf("error reading settings from DB: %s", msg)
 	}
 
 	// Setting keys are dot separated, eg: app.favicon_url. Unflatten them into

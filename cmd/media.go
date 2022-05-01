@@ -99,9 +99,7 @@ func handleUploadMedia(c echo.Context) error {
 	// TODO: cleanup
 	if _, err := app.core.InsertMedia(fName, thumbfName, app.constants.MediaProvider, app.media); err != nil {
 		cleanUp = true
-		app.log.Printf("error inserting uploaded file to db: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorCreating", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
+		return err
 	}
 	return c.JSON(http.StatusOK, okResp{true})
 }
@@ -143,8 +141,7 @@ func handleDeleteMedia(c echo.Context) error {
 
 	fname, err := app.core.DeleteMedia(id)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorDeleting", "name", "{globals.terms.media}", "error", pqErrMsg(err)))
+		return err
 	}
 
 	app.media.Delete(fname)

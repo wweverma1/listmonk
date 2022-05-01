@@ -20,7 +20,7 @@ var (
 func handleGetSettings(c echo.Context) error {
 	app := c.Get("app").(*App)
 
-	s, err := getSettings(app)
+	s, err := app.core.GetSettings()
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func handleUpdateSettings(c echo.Context) error {
 	}
 
 	// Get the existing settings.
-	cur, err := getSettings(app)
+	cur, err := app.core.GetSettings()
 	if err != nil {
 		return err
 	}
@@ -164,9 +164,7 @@ func handleUpdateSettings(c echo.Context) error {
 
 	// Update the settings in the DB.
 	if err := app.core.UpdateSettings(set); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUpdating",
-				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
+		return err
 	}
 
 	// If there are any active campaigns, don't do an auto reload and
@@ -194,15 +192,4 @@ func handleUpdateSettings(c echo.Context) error {
 func handleGetLogs(c echo.Context) error {
 	app := c.Get("app").(*App)
 	return c.JSON(http.StatusOK, okResp{app.bufLog.Lines()})
-}
-
-func getSettings(app *App) (models.Settings, error) {
-	out, err := app.core.GetSettings()
-	if err != nil {
-		return out, echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.settings}", "error", pqErrMsg(err)))
-	}
-
-	return out, nil
 }

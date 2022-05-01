@@ -173,8 +173,7 @@ func handleTemplateSetDefault(c echo.Context) error {
 	}
 
 	if err := app.core.SetDefaultTemplate(id); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorUpdating", "name", "{globals.terms.template}", "error", pqErrMsg(err)))
+		return err
 	}
 
 	return handleGetTemplates(c)

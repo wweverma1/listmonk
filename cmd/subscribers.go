@@ -291,15 +291,11 @@ func handleSubscriberSendOptin(c echo.Context) error {
 	// Fetch the subscriber.
 	out, err := app.core.GetSubscriber(id, "", "")
 	if err != nil {
-		app.log.Printf("error fetching subscriber: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.Ts("globals.messages.errorFetching",
-				"name", "{globals.terms.subscribers}", "error", pqErrMsg(err)))
+		return err
 	}
 
 	if _, err := sendOptinConfirmationHook(app)(out, nil); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			app.i18n.T("subscribers.errorSendingOptin"))
+		return echo.NewHTTPError(http.StatusInternalServerError, app.i18n.T("subscribers.errorSendingOptin"))
 	}
 
 	return c.JSON(http.StatusOK, okResp{true})
