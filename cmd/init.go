@@ -697,10 +697,6 @@ func initHTTPServer(app *App) *echo.Echo {
 	return srv
 }
 
-func initCore() {
-
-}
-
 func awaitReload(sigChan chan os.Signal, closerWait chan bool, closer func()) chan bool {
 	// The blocking signal handler that main() waits on.
 	out := make(chan bool)

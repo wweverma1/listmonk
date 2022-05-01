@@ -1,3 +1,7 @@
+// package core is the collection of re-usable functions that primarily provides data (DB / CRUD) operations
+// to the app. For instance, creating and mutating objects like lists, subscribers etc.
+// All such methods return an echo.HTTPError{} (which implements error.error) that can be directly returned
+// as a response to HTTP handlers without further processing.
 package core
 
 import (

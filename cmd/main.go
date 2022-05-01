@@ -175,7 +175,6 @@ func main() {
 		Constants: core.Constants{
 			SendOptinConfirmation: app.constants.SendOptinConfirmation,
 		},
-
 		Queries: queries,
 		DB:      db,
 		I18n:    app.i18n,
