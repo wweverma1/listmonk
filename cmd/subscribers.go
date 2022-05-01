@@ -217,9 +217,9 @@ func handleCreateSubscriber(c echo.Context) error {
 
 	em, err := app.importer.SanitizeEmail(req.Email)
 	if err != nil {
-
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	req.Email = strings.ToLower(em)
+	req.Email = em
 
 	req.Name = strings.TrimSpace(req.Name)
 	if len(req.Name) == 0 || len(req.Name) > stdInputMaxLen {

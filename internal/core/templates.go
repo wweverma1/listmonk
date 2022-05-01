@@ -9,7 +9,7 @@ import (
 
 // GetTemplates retrieves all templates.
 func (c *Core) GetTemplates(noBody bool) ([]models.Template, error) {
-	var out []models.Template
+	out := []models.Template{}
 	if err := c.q.GetTemplates.Select(&out, 0, noBody); err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
 			c.i18n.Ts("globals.messages.errorFetching", "name", "{globals.terms.templates}", "error", pqErrMsg(err)))

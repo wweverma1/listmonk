@@ -310,9 +310,10 @@ func handleSubscriptionForm(c echo.Context) error {
 
 	em, err := app.importer.SanitizeEmail(req.Email)
 	if err != nil {
-
+		return c.Render(http.StatusBadRequest, tplMessage,
+			makeMsgTpl(app.i18n.T("public.errorTitle"), "", err.Error()))
 	}
-	req.Email = strings.ToLower(em)
+	req.Email = em
 
 	req.Name = strings.TrimSpace(req.Name)
 	if len(req.Name) == 0 || len(req.Name) > stdInputMaxLen {

@@ -257,7 +257,7 @@ func (c *Core) DeleteCampaign(id int) error {
 
 // GetRunningCampaignStats returns the progress stats of running campaigns.
 func (c *Core) GetRunningCampaignStats() ([]models.CampaignStats, error) {
-	var out []models.CampaignStats
+	out := []models.CampaignStats{}
 	if err := c.q.GetCampaignStatus.Select(&out, models.CampaignStatusRunning); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -291,7 +291,7 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate s
 		return nil, echo.NewHTTPError(http.StatusBadRequest, c.i18n.T("analytics.invalidDates"))
 	}
 
-	out := make([]models.CampaignAnalyticsCount, 0)
+	out := []models.CampaignAnalyticsCount{}
 	if err := stmt.Select(&out, pq.Array(campIDs), fromDate, toDate); err != nil {
 		c.log.Printf("error fetching campaign %s: %v", typ, err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
@@ -303,7 +303,7 @@ func (c *Core) GetCampaignAnalyticsCounts(campIDs []int, typ, fromDate, toDate s
 
 // GetCampaignAnalyticsLinks returns link click analytics for the given campaign IDs.
 func (c *Core) GetCampaignAnalyticsLinks(campIDs []int, typ, fromDate, toDate string) ([]models.CampaignAnalyticsLink, error) {
-	out := make([]models.CampaignAnalyticsLink, 0)
+	out := []models.CampaignAnalyticsLink{}
 	if err := c.q.GetCampaignLinkCounts.Select(&out, pq.Array(campIDs), fromDate, toDate); err != nil {
 		c.log.Printf("error fetching campaign %s: %v", typ, err)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,

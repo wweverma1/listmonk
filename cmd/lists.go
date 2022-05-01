@@ -71,9 +71,6 @@ func handleGetLists(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest,
 			app.i18n.Ts("globals.messages.notFound", "name", "{globals.terms.list}"))
 	}
-	if len(res) == 0 {
-		return c.JSON(http.StatusOK, okResp{[]struct{}{}})
-	}
 
 	// Replace null tags.
 	for i, v := range res {
@@ -94,7 +91,9 @@ func handleGetLists(c echo.Context) error {
 	// Meta.
 	// TODO: add .query?
 	out.Results = res
-	out.Total = res[0].Total
+	if len(res) > 0 {
+		out.Total = res[0].Total
+	}
 	out.Page = pg.Page
 	out.PerPage = pg.PerPage
 	if out.PerPage == 0 {

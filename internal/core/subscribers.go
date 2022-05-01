@@ -146,7 +146,7 @@ func (c *Core) GetSubscriberLists(subID int, uuid string, listIDs []int, listUUI
 
 	// Fetch double opt-in lists from the given list IDs.
 	// Get the list of subscription lists where the subscriber hasn't confirmed.
-	var out []models.List
+	out := []models.List{}
 	if err := c.q.GetSubscriberLists.Select(&out, subID, uu, pq.Array(listIDs), pq.Array(listUUIDs), subStatus, listType); err != nil {
 		c.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return nil, err

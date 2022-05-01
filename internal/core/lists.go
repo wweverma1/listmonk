@@ -11,7 +11,7 @@ import (
 
 // GetLists gets all lists optionally filtered by type.
 func (c *Core) GetLists(typ string) ([]models.List, error) {
-	var out []models.List
+	out := []models.List{}
 
 	// TODO: remove orderBy
 	if err := c.q.GetLists.Select(&out, typ, "id"); err != nil {
@@ -25,7 +25,7 @@ func (c *Core) GetLists(typ string) ([]models.List, error) {
 
 // QueryLists gets multiple lists based on multiple query params.
 func (c *Core) QueryLists(searchStr, orderBy, order string, offset, limit int) ([]models.List, error) {
-	var out []models.List
+	out := []models.List{}
 
 	queryStr, stmt := makeSearchQuery(searchStr, orderBy, order, c.q.QueryLists)
 
@@ -62,7 +62,7 @@ func (c *Core) GetList(id int, uuid string) (models.List, error) {
 
 // GetListsByOptin returns lists by optin type.
 func (c *Core) GetListsByOptin(ids []int, optinType string) ([]models.List, error) {
-	var out []models.List
+	out := []models.List{}
 	if err := c.q.GetListsByOptin.Select(&out, optinType, pq.Array(ids), nil); err != nil {
 		c.log.Printf("error fetching lists for opt-in: %s", pqErrMsg(err))
 		return nil, echo.NewHTTPError(http.StatusInternalServerError,
