@@ -266,7 +266,6 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 			subUUID = c.Param("subUUID")
 		)
 
-		var exists bool
 		if _, err := app.core.GetSubscriber(0, subUUID, ""); err != nil {
 			if er, ok := err.(*echo.HTTPError); ok && er.Code == http.StatusBadRequest {
 				return c.Render(http.StatusNotFound, tplMessage,
@@ -278,10 +277,6 @@ func subscriberExists(next echo.HandlerFunc, params ...string) echo.HandlerFunc 
 				makeMsgTpl(app.i18n.T("public.errorTitle"), "", app.i18n.T("public.errorProcessingRequest")))
 		}
 
-		if !exists {
-			return c.Render(http.StatusNotFound, tplMessage,
-				makeMsgTpl(app.i18n.T("public.notFoundTitle"), "", app.i18n.T("public.subNotFound")))
-		}
 		return next(c)
 	}
 }
