@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -92,33 +91,6 @@ type Queries struct {
 	QueryBounces              string     `query:"query-bounces"`
 	DeleteBounces             *sqlx.Stmt `query:"delete-bounces"`
 	DeleteBouncesBySubscriber *sqlx.Stmt `query:"delete-bounces-by-subscriber"`
-}
-
-// dbConf contains database config required for connecting to a DB.
-type dbConf struct {
-	Host        string        `koanf:"host"`
-	Port        int           `koanf:"port"`
-	User        string        `koanf:"user"`
-	Password    string        `koanf:"password"`
-	DBName      string        `koanf:"database"`
-	SSLMode     string        `koanf:"ssl_mode"`
-	MaxOpen     int           `koanf:"max_open"`
-	MaxIdle     int           `koanf:"max_idle"`
-	MaxLifetime time.Duration `koanf:"max_lifetime"`
-}
-
-// connectDB initializes a database connection.
-func connectDB(c dbConf) (*sqlx.DB, error) {
-	db, err := sqlx.Connect("postgres",
-		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-			c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode))
-	if err != nil {
-		return nil, err
-	}
-	db.SetMaxOpenConns(c.MaxOpen)
-	db.SetMaxIdleConns(c.MaxIdle)
-	db.SetConnMaxLifetime(c.MaxLifetime)
-	return db, nil
 }
 
 // CompileSubscriberQueryTpl takes an arbitrary WHERE expressions

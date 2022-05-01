@@ -9,10 +9,6 @@ SELECT * FROM subscribers WHERE
         WHEN $3 != '' THEN email = $3
     END;
 
--- name: subscriber-exists
--- Check if a subscriber exists by id or UUID.
-SELECT exists (SELECT true FROM subscribers WHERE CASE WHEN $1 > 0 THEN id = $1 ELSE uuid = $2 END);
-
 -- name: get-subscribers-by-emails
 -- Get subscribers by emails.
 SELECT * FROM subscribers WHERE email=ANY($1);
