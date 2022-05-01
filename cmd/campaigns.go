@@ -593,22 +593,3 @@ func makeOptinCampaignMessage(o campaignReq, app *App) (campaignReq, error) {
 	o.Body = b.String()
 	return o, nil
 }
-
-// makeSearchQuery cleans an optional search string and prepares the
-// query SQL statement (string interpolated) and returns the
-// search query string along with the SQL expression.
-func makeSearchQuery(q, orderBy, order, query string) (string, string) {
-	if q != "" {
-		q = `%` + string(regexFullTextQuery.ReplaceAll([]byte(q), []byte("&"))) + `%`
-	}
-
-	// Sort params.
-	if !strSliceContains(orderBy, campaignQuerySortFields) {
-		orderBy = "created_at"
-	}
-	if order != sortAsc && order != sortDesc {
-		order = sortDesc
-	}
-
-	return q, fmt.Sprintf(query, orderBy, order)
-}
